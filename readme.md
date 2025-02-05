@@ -75,6 +75,7 @@ streamlit run app.py
 │   ├── input.json         # Optional preload JSON file
 │   ├── autosave.json      # Autosaved progress file
 ├── 📂 dev/                # Legacy development folder (see note below)
+├── 📂 demo/                # demo folder (see note below)
 └── 📄 README.md           # Documentation
 ```
 
@@ -83,6 +84,11 @@ streamlit run app.py
 The `dev/` folder contains legacy or experimental code that was used during the initial development phase. It is retained for reference purposes but is not required for the main application.  
 
 🚨 **Note:** Features in this folder may be outdated, incomplete, or unsupported in the current version of the app.
+
+## 📂 Demo (`demo/` Folder)
+
+The `demo/` folder contains example files and sample data to showcase the app’s features. Use these files to explore the functionality before importing your own Udemy data.
+
 
 ---
 
