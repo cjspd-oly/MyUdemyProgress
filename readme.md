@@ -1,6 +1,7 @@
 # 📚 My Udemy Progress
 
-**My Udemy Progress** is a Streamlit-based web application that helps you track your Udemy course progress, manage lesson statuses, and export markdown reports. The app provides an intuitive UI with autosave, file import, and export functionalities.
+**My Udemy Progress** is a Streamlit-based web application that helps you track your Udemy course progress, manage lesson statuses, and export Markdown reports. The app provides an intuitive UI with autosave, file import, and export functionalities.  
+*Note: A detailed changelog will be provided in a separate `changelog.md` file in the future.*
 
 ![App Screenshot](#) _(Add screenshot of the UI here)_
 
@@ -8,18 +9,24 @@
 
 ## 🚀 Features
 
-- 📂 **Course-wise and Section-wise tracking**
-- 🏷️ **Customizable status options** (Not Done, In Progress, Done, Important, Skip, Ignore)
-- 📥 **Import JSON data** from Udemy
-- 💾 **Autosave progress** for easy recovery
-- 📤 **Export Markdown reports**
-  - Individually (per course)
-  - Combined (all courses)
-  - Zip download (all Markdown files)
-- 🖥️ **User-friendly interface** with dropdown-based status updates
-- 🔄 **Preload JSON file (`input.json`)**
-- 🖱️ **Easy navigation** between courses
-- 🎨 **Enhanced UI with emojis & formatting**
+- **Course-wise and Section-wise Tracking**  
+  Easily monitor progress across entire courses and within individual sections.
+- **Customizable Status Options**  
+  Choose from: ❌ Not Done, ⏳ In Progress, ✅ Done, ⭐ Important, ⏭ Skip, 🚫 Ignore.
+- **Import JSON Data**  
+  Load your Udemy data via JSON (preload support available with `input.json`).
+- **Autosave Progress**  
+  Automatically save your progress for easy recovery.
+- **Export Markdown Reports**  
+  - Individual Markdown file per course  
+  - Combined Markdown file for all courses  
+  - ZIP download of all Markdown files
+- **User-friendly Interface**  
+  Update statuses with intuitive dropdowns and master status controls.
+- **Instant Top-Positioned Progress Dashboard**  
+  View updated progress analytics instantly at the top of the app.
+- **Enhanced Code Modularity**  
+  A scalable and well-documented codebase for easier maintenance and future feature additions.
 
 ---
 
@@ -57,51 +64,57 @@ streamlit run app.py
 
 ### 1️⃣ Load Your Udemy Data
 
-- Upload your **Udemy JSON file** (downloaded via API or manually exported).
+- **Upload your Udemy JSON file** (downloaded via API or manually exported).  
 - Or, enable **Preload JSON** to automatically load `input.json`.
 
 ### 2️⃣ Track Your Progress
 
-- Use the **dropdown** next to each lesson to set your progress status.
-- Status options: ✅ Done, 🚀 In Progress, 🔴 Not Done, ⭐ Important, ❌ Skip, 🚫 Ignore.
+- Update lesson statuses using the **dropdown** next to each lesson.
+- Use the **Master Status** control in each section to update all lessons at once.
+- The progress dashboard at the top updates instantly with every change.
 
 ### 3️⃣ Save Your Progress
 
 - Enable **Autosave** to save changes automatically.
-- Click **"Save All Changes"** to manually save.
+- Click **"Save All Changes"** (or use the sidebar Save All button) to manually save progress.  
+  *Note: When saving, statuses are stored in plain text (without emojis) in the JSON file.*
 
 ### 4️⃣ Export Reports
 
-- **Download Markdown files** per course.
-- **Get a combined Markdown file** with all courses.
-- **Download a ZIP** containing all markdown files.
+- **Download individual Markdown files** per course.
+- **Download a combined Markdown file** for all courses.
+- **Download a ZIP file** containing all Markdown files.
 
 ---
 
-## File Structure:
+## 📂 File Structure
 
 ```
 📂 my-udemy-progress/
-├── 📄 app.py              # Streamlit app script
+├── 📄 app.py              # Main Streamlit app script
 ├── 📜 requirements.txt    # Python dependencies
 ├── 📂 data/
 │   ├── input.json         # Optional preload JSON file
-│   ├── autosave.json      # Autosaved progress file
-├── 📂 dev/                # Legacy development folder (see note below)
-├── 📂 demo/               # demo folder (see note below)
+│   ├── autosave.json      # Autosaved progress file (plain statuses)
+├── 📂 dev/                # Legacy development folder (for reference)
+├── 📂 demo/               # Demo folder with example files & sample data
 ├── 📂 personal/           # Personal Stuff (Ignore this)
 └── 📄 README.md           # Documentation
 ```
 
+---
+
 ## 📂 Legacy Development (`dev/` Folder)
 
-The `dev/` folder contains legacy or experimental code that was used during the initial development phase. It is retained for reference purposes but is not required for the main application.
+The `dev/` folder contains legacy or experimental code used during initial development. It is retained for reference but is not required for the main application.
 
-🚨 **Note:** Features in this folder may be outdated, incomplete, or unsupported in the current version of the app.
+🚨 **Note:** Features in this folder may be outdated or unsupported in the current version.
+
+---
 
 ## 📂 Demo (`demo/` Folder)
 
-The `demo/` folder contains example files and sample data to showcase the app’s features. Use these files to explore the functionality before importing your own Udemy data.
+The `demo/` folder contains sample files and example data to showcase the app’s functionality. Use these files to explore features before importing your own Udemy data.
 
 ---
 
@@ -112,27 +125,27 @@ The `demo/` folder contains example files and sample data to showcase the app’
 Modify the `status_options` list in `app.py`:
 
 ```python
-status_options = ["Not Done", "In Progress", "Done", "Important", "Skip", "Ignore"]
+status_options = ["❌ Not Done", "⏳ In Progress", "✅ Done", "⭐ Important", "⏭ Skip", "🚫 Ignore"]
 ```
 
 ### 🔹 Preload Default JSON File
 
-Set `PRELOAD_FILENAME` in `app.py`:
+Set the preload file path in `app.py`:
 
 ```python
-PRELOAD_FILENAME = "input.json"
+PRELOAD_FILENAME = "data/input.json"
 ```
 
 ### 🔹 Modify Export File Names
 
-Edit the `sanitize_filename()` function to customize exported file names.
+Edit the `sanitize_filename()` function in `app.py` to customize exported file names.
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! 🚀 Feel free to:
-
+Contributions are welcome! 🚀  
+Feel free to:
 - **Report bugs**
 - **Suggest new features**
 - **Improve UI/UX**
@@ -148,8 +161,4 @@ This project is licensed under the **MIT License**.
 
 ## 📧 Contact
 
-For queries or suggestions, feel free to reach out!
-
----
-
-Would you like any additional details or customizations in the README? 😊
+For queries or suggestions, please reach out!
