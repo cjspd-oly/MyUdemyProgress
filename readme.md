@@ -2,7 +2,7 @@
 
 **My Udemy Progress** is a Streamlit-based web application that helps you track your Udemy course progress, manage lesson statuses, and export markdown reports. The app provides an intuitive UI with autosave, file import, and export functionalities.
 
-![App Screenshot](#) *(Add screenshot of the UI here)*
+![App Screenshot](#) _(Add screenshot of the UI here)_
 
 ---
 
@@ -26,18 +26,28 @@
 ## 📦 Installation
 
 ### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/yourusername/my-udemy-progress.git
+
+```sh
+git clone https://github.com/cjspd.oly/my-udemy-progress.git
 cd my-udemy-progress
 ```
 
-### 2️⃣ Install Dependencies
-```bash
+### 2️⃣ Set Up a Virtual Environment (Recommended)
+
+```sh
+python3 -m venv venv
+source venv/bin/activate  # On Windows, use venv\Scripts\activate
+```
+
+### 3️⃣ Install Dependencies
+
+```sh
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Run the App
-```bash
+### 4️⃣ Run the App
+
+```sh
 streamlit run app.py
 ```
 
@@ -46,26 +56,29 @@ streamlit run app.py
 ## 🛠️ Usage
 
 ### 1️⃣ Load Your Udemy Data
+
 - Upload your **Udemy JSON file** (downloaded via API or manually exported).
 - Or, enable **Preload JSON** to automatically load `input.json`.
 
 ### 2️⃣ Track Your Progress
+
 - Use the **dropdown** next to each lesson to set your progress status.
 - Status options: ✅ Done, 🚀 In Progress, 🔴 Not Done, ⭐ Important, ❌ Skip, 🚫 Ignore.
 
 ### 3️⃣ Save Your Progress
+
 - Enable **Autosave** to save changes automatically.
 - Click **"Save All Changes"** to manually save.
 
 ### 4️⃣ Export Reports
+
 - **Download Markdown files** per course.
 - **Get a combined Markdown file** with all courses.
 - **Download a ZIP** containing all markdown files.
 
 ---
 
-## File Structure:  
-
+## File Structure:
 
 ```
 📂 my-udemy-progress/
@@ -75,13 +88,14 @@ streamlit run app.py
 │   ├── input.json         # Optional preload JSON file
 │   ├── autosave.json      # Autosaved progress file
 ├── 📂 dev/                # Legacy development folder (see note below)
-├── 📂 demo/                # demo folder (see note below)
+├── 📂 demo/               # demo folder (see note below)
+├── 📂 personal/           # Personal Stuff (Ignore this)
 └── 📄 README.md           # Documentation
 ```
 
 ## 📂 Legacy Development (`dev/` Folder)
 
-The `dev/` folder contains legacy or experimental code that was used during the initial development phase. It is retained for reference purposes but is not required for the main application.  
+The `dev/` folder contains legacy or experimental code that was used during the initial development phase. It is retained for reference purposes but is not required for the main application.
 
 🚨 **Note:** Features in this folder may be outdated, incomplete, or unsupported in the current version of the app.
 
@@ -89,24 +103,28 @@ The `dev/` folder contains legacy or experimental code that was used during the 
 
 The `demo/` folder contains example files and sample data to showcase the app’s features. Use these files to explore the functionality before importing your own Udemy data.
 
-
 ---
 
 ## 🎨 Customization
 
 ### 🔹 Change Status Options
+
 Modify the `status_options` list in `app.py`:
+
 ```python
 status_options = ["Not Done", "In Progress", "Done", "Important", "Skip", "Ignore"]
 ```
 
 ### 🔹 Preload Default JSON File
+
 Set `PRELOAD_FILENAME` in `app.py`:
+
 ```python
 PRELOAD_FILENAME = "input.json"
 ```
 
 ### 🔹 Modify Export File Names
+
 Edit the `sanitize_filename()` function to customize exported file names.
 
 ---
@@ -114,6 +132,7 @@ Edit the `sanitize_filename()` function to customize exported file names.
 ## 🤝 Contributing
 
 We welcome contributions! 🚀 Feel free to:
+
 - **Report bugs**
 - **Suggest new features**
 - **Improve UI/UX**
