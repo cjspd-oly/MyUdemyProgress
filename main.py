@@ -280,11 +280,12 @@ def render_course_details(selected_course_id, json_data, statuses, status_option
             col_m1, col_m2 = st.columns([8, 2])
             with col_m1:
                 master_status = st.selectbox(
-                    "🎛️ Master Status", options=status_options, key=master_key
+                    "🎛️ Master Status", options=["---"]+status_options, key=master_key
                 )
             with col_m2:
                 if st.button("✅ Apply", key=master_key + "_apply"):
                     for item in sec.get("items", []):
+                        if master_status == "---": continue
                         key = f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{item.get('object_index', '0')}"
                         statuses[key] = master_status
             st.markdown("---")

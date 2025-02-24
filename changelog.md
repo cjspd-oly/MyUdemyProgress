@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## v1.1.1 - [2025-02-24]
+
+### Added
+- **UI Enhancement:**
+  Added a placeholder "---" to the Master Status dropdown to prevent accidental bulk updates when no meaningful status is selected.
+
+---
+
 ## v1.1.0 - [2025-02-22]
 
 ### Added
