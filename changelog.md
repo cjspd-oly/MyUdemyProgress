@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## v1.1.2 - [2025-02-25]
+
+### Fixed
+- **File Path Fix for Streamlit Hosting:**  
+  Updated the file path constants to use relative paths instead of dynamically joining with the script directory. This ensures that the app correctly locates `data/autosave.json` and `data/input.json` when hosted on Streamlit Cloud.
+
+---
+
 ## v1.1.1 - [2025-02-24]
 
 ### Added

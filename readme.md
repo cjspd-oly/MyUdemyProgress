@@ -27,7 +27,8 @@
   View updated progress analytics instantly at the top of the app.
 - **Enhanced Code Modularity**  
   A scalable and well-documented codebase for easier maintenance and future feature additions.
-
+- **Improved File Path Handling**:
+  Data file paths now use relative paths for correct file resolution when deploying on Streamlit hosting environments.
 ---
 
 ## 📦 Installation

@@ -27,9 +27,13 @@ import re
 import streamlit as st
 import pandas as pd  # For analytics charts
 
+# 🛠️ Fix: file path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Constants for file paths
-AUTOSAVE_FILENAME = "data/autosave.json"
-PRELOAD_FILENAME = "data/input.json"
+AUTOSAVE_FILENAME = os.path.join(script_dir, "data/autosave.json")
+PRELOAD_FILENAME = os.path.join(script_dir, "data/input.json")
+
 
 # ------------------------------------------------------------------------------
 # Helper Functions
