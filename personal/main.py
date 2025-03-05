@@ -129,6 +129,7 @@ status_mapping = {
     "Done": "✅ Done",
     "Important": "⭐ Important",
     "Skip": "⏭ Skip",
+    "Maybe": "⏳ Maybe",
     "Ignore": "🚫 Ignore",
 }
 # Reverse mapping to convert emoji statuses back to plain text for saving
@@ -152,6 +153,7 @@ def show_progress_dashboard(course_id, statuses):
     in_progress = sum(1 for s in course_statuses.values() if s == "⏳ In Progress")
     not_done = sum(1 for s in course_statuses.values() if s == "❌ Not Done")
     important = sum(1 for s in course_statuses.values() if s == "⭐ Important")
+    maybe = sum(1 for s in course_statuses.values() if s == "⏳ Maybe")
     skip = sum(1 for s in course_statuses.values() if s == "⏭ Skip")
     ignore = sum(1 for s in course_statuses.values() if s == "🚫 Ignore")
 
@@ -160,21 +162,22 @@ def show_progress_dashboard(course_id, statuses):
     st.write(
         f"✅ **Done:** {done} &nbsp;&nbsp; ⏳ **In Progress:** {in_progress} &nbsp;&nbsp; ❌ **Not Done:** {not_done}"
     )
-    progress_percent = (done / total * 100) if total > 0 else 0
+    progress_percent = (done / (done + not_done) * 100) if total > 0 else 0
     st.progress(progress_percent / 100)
-    st.write(f"**Completion:** {progress_percent:.1f}%")
+    st.write(f"**Completion:** {progress_percent:.3f}%")
 
     data = pd.DataFrame(
         {
             "Status": [
                 "Done",
-                "In Progress",
                 "Not Done",
                 "Important",
+                "In Progress",
                 "Skip",
+                "Maybe",
                 "Ignore",
             ],
-            "Count": [done, in_progress, not_done, important, skip, ignore],
+            "Count": [done, not_done, important, in_progress, skip, maybe, ignore],
         }
     )
     st.bar_chart(data.set_index("Status"))
@@ -284,12 +287,13 @@ def render_course_details(selected_course_id, json_data, statuses, status_option
             col_m1, col_m2 = st.columns([8, 2])
             with col_m1:
                 master_status = st.selectbox(
-                    "🎛️ Master Status", options=["---"]+status_options, key=master_key
+                    "🎛️ Master Status", options=["---"] + status_options, key=master_key
                 )
             with col_m2:
                 if st.button("✅ Apply", key=master_key + "_apply"):
                     for item in sec.get("items", []):
-                        if master_status == "---": continue
+                        if master_status == "---":
+                            continue
                         key = f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{item.get('object_index', '0')}"
                         statuses[key] = master_status
             st.markdown("---")
@@ -356,6 +360,7 @@ def main():
             "✅ Done",
             "⭐ Important",
             "⏭ Skip",
+            "⏳ Maybe",
             "🚫 Ignore",
         ]
 
