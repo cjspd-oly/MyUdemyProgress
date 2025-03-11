@@ -3,32 +3,34 @@
 **My Udemy Progress** is a Streamlit-based web application that helps you track your Udemy course progress, manage lesson statuses, and export Markdown reports. The app provides an intuitive UI with autosave, file import, and export functionalities.  
 *Note: A detailed changelog will be provided in a separate `changelog.md` file in the future.*
 
-![App Screenshot](#) _(Add screenshot of the UI here)_
+![App Screenshot](#)  
+*(Add screenshot of the UI here)*
 
 ---
 
 ## 🚀 Features
 
 - **Course-wise and Section-wise Tracking**  
-  Easily monitor progress across entire courses and within individual sections.
+  Monitor your overall progress and drill down into individual sections for detailed insights.
 - **Customizable Status Options**  
-  Choose from: ❌ Not Done, ⏳ In Progress, ✅ Done, ⭐ Important, ⏭ Skip, 🚫 Ignore.
-- **Import JSON Data**  
-  Load your Udemy data via JSON (preload support available with `input.json`).
-- **Autosave Progress**  
-  Automatically save your progress for easy recovery.
+  Easily update lesson statuses using a universal status list: ❌ Not Done, ⏳ In Progress, ✅ Done, ⭐ Important, ⏭ Skip, 🚫 Ignore.
+- **Import & Autosave Data**  
+  Import your Udemy JSON data (with preload support via `input.json`) and autosave your progress in a separate `autosave.json` file.
 - **Export Markdown Reports**  
-  - Individual Markdown file per course  
-  - Combined Markdown file for all courses  
-  - ZIP download of all Markdown files
-- **User-friendly Interface**  
-  Update statuses with intuitive dropdowns and master status controls.
-- **Instant Top-Positioned Progress Dashboard**  
-  View updated progress analytics instantly at the top of the app.
-- **Enhanced Code Modularity**  
-  A scalable and well-documented codebase for easier maintenance and future feature additions.
-- **Improved File Path Handling**:
-  Data file paths now use relative paths for correct file resolution when deploying on Streamlit hosting environments.
+  Download:
+  - An individual Markdown file per course  
+  - A combined Markdown file for all courses  
+  - A ZIP archive containing all Markdown files
+- **Instant Progress Dashboard**  
+  A top-positioned dashboard provides updated progress analytics as you update statuses.
+- **Expand/Collapse Sections**  
+  Use the sidebar toggle to expand or collapse all sections (when the filter is set to "All"). For other filters, sections expand automatically if they contain one or more matching lectures.
+- **Enhanced User Interface**  
+  - Lesson status badges are displayed on a new, smaller line above the lesson title.
+  - Improved scrollbar width for a better browsing experience.
+- **Robust and Modular Codebase**  
+  Designed for easy maintenance and future feature additions, with improved file path handling for Streamlit hosting environments.
+
 ---
 
 ## 📦 Installation
@@ -44,7 +46,7 @@ cd my-udemy-progress
 
 ```sh
 python3 -m venv venv
-source venv/bin/activate  # On Windows, use venv\Scripts\activate
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
 ```
 
 ### 3️⃣ Install Dependencies
@@ -65,22 +67,27 @@ streamlit run app.py
 
 ### 1️⃣ Load Your Udemy Data
 
-- **Upload your Udemy JSON file** (downloaded via API or manually exported).  
-- Or, enable **Preload JSON** to automatically load `input.json`.
+- **Upload your Udemy JSON file** (downloaded via API or manually exported), or
+- Enable **Preload JSON** to automatically load `input.json`.
 
 ### 2️⃣ Track Your Progress
 
 - Update lesson statuses using the **dropdown** next to each lesson.
-- Use the **Master Status** control in each section to update all lessons at once.
+- Use the **Master Status** control to update all lessons in a section at once.
 - The progress dashboard at the top updates instantly with every change.
 
-### 3️⃣ Save Your Progress
+### 3️⃣ Expand/Collapse Sections
 
-- Enable **Autosave** to save changes automatically.
-- Click **"Save All Changes"** (or use the sidebar Save All button) to manually save progress.  
-  *Note: When saving, statuses are stored in plain text (without emojis) in the JSON file.*
+- Use the **Expand All Sections** toggle in the sidebar to force all sections to be expanded when the filter is set to "All."
+- For any other filter, sections expand automatically only if they contain one or more lectures matching the filter.
 
-### 4️⃣ Export Reports
+### 4️⃣ Save Your Progress
+
+- Enable **Autosave** in the sidebar (this setting is saved in the settings file) to save changes automatically.
+- Alternatively, click **"Save All Changes"** (or the sidebar Save All button) to manually save progress.  
+  *Note: When saving, lesson statuses are stored in plain text (without emojis) in the autosave file (`autosave.json`).*
+
+### 5️⃣ Export Reports
 
 - **Download individual Markdown files** per course.
 - **Download a combined Markdown file** for all courses.
@@ -100,22 +107,20 @@ streamlit run app.py
 ├── 📂 dev/                # Legacy development folder (for reference)
 ├── 📂 demo/               # Demo folder with example files & sample data
 ├── 📂 personal/           # Personal Stuff (Ignore this)
-└── 📄 README.md           # Documentation
+└── 📄 README.md           # Project documentation (this file)
 ```
 
 ---
 
 ## 📂 Legacy Development (`dev/` Folder)
 
-The `dev/` folder contains legacy or experimental code used during initial development. It is retained for reference but is not required for the main application.
-
-🚨 **Note:** Features in this folder may be outdated or unsupported in the current version.
+The `dev/` folder contains legacy or experimental code used during initial development. This folder is maintained for reference only; features here may be outdated or unsupported in the current version.
 
 ---
 
 ## 📂 Demo (`demo/` Folder)
 
-The `demo/` folder contains sample files and example data to showcase the app’s functionality. Use these files to explore features before importing your own Udemy data.
+The `demo/` folder includes sample files and example data to showcase the app’s functionality. Explore these files before importing your own Udemy data.
 
 ---
 
@@ -123,10 +128,10 @@ The `demo/` folder contains sample files and example data to showcase the app’
 
 ### 🔹 Change Status Options
 
-Modify the `status_options` list in `app.py`:
+Modify the `universal_status_options` list in `app.py`:
 
 ```python
-status_options = ["❌ Not Done", "⏳ In Progress", "✅ Done", "⭐ Important", "⏭ Skip", "🚫 Ignore"]
+universal_status_options = ["❌ Not Done", "⏳ In Progress", "✅ Done", "⭐ Important", "⏭ Skip", "🚫 Ignore"]
 ```
 
 ### 🔹 Preload Default JSON File
@@ -163,3 +168,5 @@ This project is licensed under the **MIT License**.
 ## 📧 Contact
 
 For queries or suggestions, please reach out!
+
+---
