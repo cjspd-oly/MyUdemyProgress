@@ -17,7 +17,7 @@ sections, lectures, and progress analytics. It supports:
 To run:
     streamlit run main.py
 
-Author: Your Name
+Author: Chirag Jain
 Date: YYYY-MM-DD
 """
 
@@ -42,6 +42,15 @@ AUTOSAVE_FILENAME = os.path.join(script_dir, "data/autosave.json")
 # ------------------------------------------------------------------------------
 
 # Universal status options for easier editing and filtering (emoji versions)
+# ? Done: Done
+# ? Not Done: Not Done (TODO / One after another)
+# ? In Progress: Currently going on
+# ? Important: Done & Important
+# ? Ignore: Ignore without seeing (no need)
+# ? Come Back Later: Skip but come back ASAP
+# ? SKip: Skip with no definite time limit + if time permits
+# ? Maybe: Not Decided yet + Most probably to be skip
+
 universal_status_options = [
     "❌ Not Done",
     "⏳ In Progress",
