@@ -257,7 +257,7 @@ def show_progress_dashboard(course_id, statuses):
     st.write(
         f"✅ **Done:** {done} &nbsp;&nbsp; ⏳ **In Progress:** {in_progress} &nbsp;&nbsp; ❌ **Not Done:** {not_done}"
     )
-    progress_percent = (done / (done + not_done) * 100) if total > 0 else 0
+    progress_percent = ((done+important) / (done + important + in_progress + skip + come_back_later + not_done) * 100) if total > 0 else 0
     st.progress(progress_percent / 100)
     st.write(f"**Completion:** {progress_percent:.1f}%")
     data = pd.DataFrame(
