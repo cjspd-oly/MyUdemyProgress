@@ -49,7 +49,7 @@ AUTOSAVE_FILENAME = os.path.join(script_dir, "data/autosave.json")
 # ? Ignore: Ignore without seeing (no need)
 # ? Come Back Later: Skip but come back ASAP
 # ? SKip: Skip with no definite time limit + if time permits
-# ? Maybe: Not Decided yet + Most probably to be skip
+# ? Maybe: Not Decided yet + Most probably to be ignore or maybe skip
 
 universal_status_options = [
     "❌ Not Done",
@@ -266,7 +266,15 @@ def show_progress_dashboard(course_id, statuses):
     st.write(
         f"✅ **Done:** {done} &nbsp;&nbsp; ⏳ **In Progress:** {in_progress} &nbsp;&nbsp; ❌ **Not Done:** {not_done}"
     )
-    progress_percent = ((done+important) / (done + important + in_progress + skip + come_back_later + not_done) * 100) if total > 0 else 0
+    progress_percent = (
+        (
+            (done + important)
+            / (done + important + in_progress + skip + come_back_later + not_done)
+            * 100
+        )
+        if total > 0
+        else 0
+    )
     st.progress(progress_percent / 100)
     st.write(f"**Completion:** {progress_percent:.1f}%")
     data = pd.DataFrame(
