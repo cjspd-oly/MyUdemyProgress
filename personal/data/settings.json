@@ -1,9 +1,10 @@
 {
     "favorites": {
-        "3515300": true
+        "3515300": true,
+        "2121018": true
     },
     "filter": "All",
     "preload": true,
     "expand_all": false,
-    "autosave_setting": true
+    "autosave_setting": false
 }
