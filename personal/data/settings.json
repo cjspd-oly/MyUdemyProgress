@@ -1,10 +1,11 @@
 {
     "favorites": {
         "3515300": true,
-        "2121018": true
+        "3929906": true
     },
     "filter": "All",
     "preload": true,
     "expand_all": false,
-    "autosave_setting": false
+    "autosave_setting": true,
+    "selected_course": "3929906"
 }
