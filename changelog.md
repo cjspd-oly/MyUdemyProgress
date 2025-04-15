@@ -1,6 +1,21 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+---
+
+## v1.2.1 - [2025-04-16]
+
+### Added
+- **Selected Course Persistence**:
+  - Last selected course is now saved in `settings.json`.
+  - Automatically course restored on next launch.
+  - Ensures smoother user experience when resuming progress.
+
+- **Unified Status Mapping**:
+  - Status handling is now fully unified via `status_mapping`, `reverse_mapping`, and `universal_status_options`.
+  - All plain text statuses (like `"Done"`, `"Not Done"`) are auto-converted to their emoji-enhanced UI equivalents.
+  - Compatibility ensured with legacy `autosave.json` files.
+
 
 ---
 
