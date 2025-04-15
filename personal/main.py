@@ -1,24 +1,27 @@
 """
-Course TODO List Manager
+MyUdemyProgress
 ========================
 
-This Streamlit app helps manage course progress by displaying course details,
-sections, lectures, and progress analytics. It supports:
-  - Preloading JSON data from a local file.
-  - Autosaving changes.
-  - Displaying courses with collapsible sections.
-  - Master status updates per section.
-  - Emoji-enhanced status display in the UI while saving plain statuses in JSON.
-  - Exporting course details as Markdown files and a ZIP archive.
-  - A progress analytics dashboard that always appears at the top.
-  - Additional features: color-coded badges, lecture filters, favorite courses,
-    lazy loading, auto-collapsing of completed sections, and a toggle to collapse/expand all.
+This is a Streamlit-based web application that helps you track your progress across online courses. It offers a modern, interactive interface to monitor course details, update lecture statuses, and view comprehensive progress analytics—all while seamlessly saving and loading your progress.
+
+- **Preload & Autosave:**
+    Automatically load your progress from a local JSON file (`autosave.json`) and manually save changes to preserve your updates across sessions.
+- **Course & Section Display:**
+    View complete course details with collapsible sections that show lectures and their statuses. The app automatically saves and loads the selected course, ensuring you can resume exactly where you left off.
+- **Master Status Updates:**
+    Quickly update the status of all lectures within a section using intuitive master controls.
+- **Emoji-Enhanced Statuses:**
+    Enjoy vivid, emoji-enhanced status badges for better visual distinction while the app saves plain text statuses to maintain compatibility with older data formats.
+- **Export Options:**
+    Generate Markdown reports for individual courses or combine multiple courses into one file. Download all reports in a ZIP archive for offline use.
+- **Progress Analytics Dashboard:**
+    See detailed, real-time analytics—including completion percentages and status breakdowns—to track your course progress at a glance.
+- **Additional Features:**
+    - **Lecture Filtering & Favorites:** Easily filter lectures by status and mark courses as favorites for quick access.
+    - **Optimized UI:** Experience a responsive, lazy-loaded interface with an enhanced scrollbar and auto-collapsing sections for a streamlined workflow.
 
 To run:
     streamlit run main.py
-
-Author: Chirag Jain
-Date: YYYY-MM-DD
 """
 
 import json
@@ -29,19 +32,13 @@ import re
 import streamlit as st
 import pandas as pd  # For analytics charts
 
-# 🛠️ Fix: file path
+# --- File Paths Setup ---
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Constants for file paths
 PRELOAD_FILENAME = os.path.join(script_dir, "data/autosave.json")
 SETTINGS_FILENAME = os.path.join(script_dir, "data/settings.json")
 AUTOSAVE_FILENAME = os.path.join(script_dir, "data/autosave.json")
 
-# ------------------------------------------------------------------------------
-# Global Variables
-# ------------------------------------------------------------------------------
-
-# Universal status options for easier editing and filtering (emoji versions)
+# --- Global Variables & Mappings ---
 # ? Done: Done
 # ? Not Done: Not Done (TODO / One after another)
 # ? In Progress: Currently going on
@@ -51,106 +48,154 @@ AUTOSAVE_FILENAME = os.path.join(script_dir, "data/autosave.json")
 # ? SKip: Skip with no definite time limit + if time permits
 # ? Maybe: Not Decided yet + Most probably to be ignore or maybe skip
 
-universal_status_options = [
-    "❌ Not Done",
-    "⏳ In Progress",
-    "✅ Done",
-    "⭐ Important",
-    "⏰ Come Back Later",
-    "⏭ Skip",
-    "⏳ Maybe",
-    "🚫 Ignore",
-]
-
-# Color mapping for statuses (for badges)
-status_colors = {
-    "❌ Not Done": "#e74c3c",
-    "⏳ In Progress": "#f39c12",
-    "✅ Done": "#27ae60",
-    "⭐ Important": "#f1c40f",
-    "⏭ Skip": "#7f8c8d",
-    "⏳ Maybe": "#3498db",
-    "🚫 Ignore": "#95a5a6",
+# TODO: Use status_info directly, remove derived vars; skipping due to too many changes.
+# TODO: status_info need to be unified with show_progress_dashboard()
+# --- Unified Status Information ---
+status_info = {
+    "Not Done": {"display": "❌ Not Done", "color": "#e74c3c"},
+    "In Progress": {"display": "⏳ In Progress", "color": "#f39c12"},
+    "Done": {"display": "✅ Done", "color": "#27ae60"},
+    "Important": {"display": "⭐ Important", "color": "#f1c40f"},
+    "Come Back Later": {"display": "⏰ Come Back Later", "color": "#f1c40f"},
+    "Skip": {"display": "⏭ Skip", "color": "#7f8c8d"},
+    "Maybe": {"display": "⏳ Maybe", "color": "#3498db"},
+    "Ignore": {"display": "🚫 Ignore", "color": "#95a5a6"},
 }
 
-# ------------------------------------------------------------------------------
-# Settings Functions
-# ------------------------------------------------------------------------------
+# Derived variables:
+universal_status_options = [info["display"] for info in status_info.values()]
+status_mapping = {status: info["display"] for status, info in status_info.items()}
+reverse_mapping = {info["display"]: status for status, info in status_info.items()}
+status_colors = {info["display"]: info["color"] for _, info in status_info.items()}
 
 
+# --- JSON I/O Helpers ---
+def load_json(file_path):
+    """Load settings from the settings file."""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        st.sidebar.error(f"Error loading {file_path}: {e}")
+        return {}
+
+
+def save_json(file_path, data):
+    """Save settings to the settings file."""
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+    except Exception as e:
+        st.sidebar.error(f"Error saving to {file_path}: {e}")
+
+
+def sanitize_filename(filename):
+    return re.sub(r'[\\/*?:"<>|]', "", filename)
+
+
+# --- Settings Functions ---
 def load_settings():
     """Load settings from the settings file."""
-    if os.path.exists(SETTINGS_FILENAME):
-        with open(SETTINGS_FILENAME, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+    return load_json(SETTINGS_FILENAME)
 
 
 def save_settings(settings):
     """Save settings to the settings file."""
-    with open(SETTINGS_FILENAME, "w", encoding="utf-8") as f:
-        json.dump(settings, f, indent=4)
+    save_json(SETTINGS_FILENAME, settings)
 
 
 def initialize_settings():
     """Initialize settings in session state if not already present."""
     if "settings" not in st.session_state:
         st.session_state["settings"] = load_settings()
-    if "favorites" not in st.session_state["settings"]:
-        st.session_state["settings"]["favorites"] = {}
-    if "filter" not in st.session_state["settings"]:
-        st.session_state["settings"]["filter"] = "All"
-    if "preload" not in st.session_state["settings"]:
-        st.session_state["settings"]["preload"] = True
-    if "expand_all" not in st.session_state["settings"]:
-        st.session_state["settings"]["expand_all"] = False
-    if "autosave_setting" not in st.session_state["settings"]:
-        st.session_state["settings"]["autosave_setting"] = False
+    st.session_state["settings"].setdefault("favorites", {})
+    st.session_state["settings"].setdefault("preload", True)
+    st.session_state["settings"].setdefault("autosave_setting", False)
+    st.session_state["settings"].setdefault("filter", "All")
+    st.session_state["settings"].setdefault("selected_course", None)
 
 
-# ------------------------------------------------------------------------------
-# Helper: Convert loaded status to UI-compatible version
-# ------------------------------------------------------------------------------
+# --- Session State Initialization ---
+def initialize_session_state():
+    """Initialize session state for JSON data, statuses, and settings."""
+    if "json_data" not in st.session_state:
+        st.session_state["json_data"] = None
+    if "statuses" not in st.session_state:
+        st.session_state["statuses"] = {}
+    initialize_settings()
 
 
+# --- Status Conversion Helpers ---
 def get_ui_status(value):
     """
     Convert a loaded status value to a UI-compatible emoji-enhanced version.
     If the value is plain text (e.g. "Done"), map it using status_mapping.
     Comparison is case-insensitive and trims whitespace.
     """
-    value_clean = value.strip().lower()
+    try:
+        value_clean = value.strip().lower()
+    except AttributeError:
+        value_clean = ""
     for option in universal_status_options:
         if option.lower() == value_clean:
             return option
     mapping = {k.lower(): v for k, v in status_mapping.items()}
-    if value_clean in mapping:
-        return mapping[value_clean]
-    return universal_status_options[0]
+    return mapping.get(value_clean, universal_status_options[0])
 
 
-# ------------------------------------------------------------------------------
-# Helper Functions (JSON, filenames, markdown)
-# ------------------------------------------------------------------------------
+def get_plain_status(status):
+    """Convert an emoji-enhanced status to plain text using our mapping."""
+    return reverse_mapping.get(status, status)
 
 
-def load_json(file_path):
-    """Load and return JSON data from a file."""
-    with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def get_plain_statuses(statuses_dict):
+    """Convert all statuses to plain text for saving."""
+    return {k: get_plain_status(v) for k, v in statuses_dict.items()}
 
 
-def save_json(file_path, data):
-    """Save data as JSON to a file."""
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
+# --- Autosave Functions ---
+def load_autosave():
+    """
+    Load autosaved data (if available) from autosave.json and convert loaded statuses
+    to UI-compatible versions.
+    """
+    if os.path.exists(AUTOSAVE_FILENAME):
+        try:
+            data = load_json(AUTOSAVE_FILENAME)
+            st.session_state["json_data"] = data.get("json_data", {})
+            loaded_statuses = data.get("statuses", {})
+            st.session_state["statuses"] = {
+                k: get_ui_status(v) for k, v in loaded_statuses.items()
+            }
+            st.sidebar.info("Loaded autosave.json")
+        except Exception as e:
+            st.sidebar.error(f"Autosave error: {e}")
 
 
-def sanitize_filename(filename):
-    """Sanitize a string to be a valid filename."""
-    return re.sub(r'[\\/*?:"<>|]', "", filename)
+def save_autosave():
+    """
+    Save autosave data to autosave.json.
+    Only plain text statuses are saved.
+    """
+    plain_statuses = get_plain_statuses(st.session_state["statuses"])
+    data = {"json_data": st.session_state["json_data"], "statuses": plain_statuses}
+    save_json(AUTOSAVE_FILENAME, data)
 
 
+# --- File Upload ---
+def handle_file_upload():
+    """Display a file uploader to load JSON data if none is available."""
+    if st.session_state["json_data"] is None:
+        uploaded_file = st.file_uploader("📂 Upload JSON", type=["json"])
+        if uploaded_file is not None:
+            try:
+                st.session_state["json_data"] = json.load(uploaded_file)
+                st.success("JSON loaded!")
+            except Exception as e:
+                st.error(f"Error reading JSON: {e}")
+
+
+# --- Export: Markdown ---
 def generate_markdown(json_data, statuses):
     """Generate a Markdown representation for all courses."""
     md = "# 📚 Course TODO List\n\n"
@@ -211,38 +256,190 @@ def generate_individual_markdowns(json_data, statuses):
     return files
 
 
-# ------------------------------------------------------------------------------
-# Status Mapping (Plain <-> Emoji)
-# ------------------------------------------------------------------------------
+# --- Sidebar Rendering ---
+def render_sidebar():
+    """Render sidebar options for autosave, preload, course selection, filters"""
+    st.sidebar.header("⚙️ Options")
+    autosave_setting = st.sidebar.checkbox(
+        "💾 Autosave",
+        value=st.session_state["settings"].get("autosave_setting", False),
+        key="autosave_checkbox",
+    )
+    st.session_state["settings"]["autosave_setting"] = autosave_setting
 
-status_mapping = {
-    "Not Done": "❌ Not Done",
-    "In Progress": "⏳ In Progress",
-    "Done": "✅ Done",
-    "Important": "⭐ Important",
-    "Come Back Later": "⏰ Come Back Later",
-    "Skip": "⏭ Skip",
-    "Maybe": "⏳ Maybe",
-    "Ignore": "🚫 Ignore",
-}
-reverse_mapping = {v: k for k, v in status_mapping.items()}
+    preload_enabled = st.sidebar.checkbox(
+        "🚀 Preload JSON",
+        value=st.session_state["settings"].get("preload", True),
+        key="preload_checkbox",
+    )
+    st.session_state["settings"]["preload"] = preload_enabled
+
+    filter_option = st.sidebar.selectbox(
+        "🔍 Filter Lectures",
+        ["All"] + universal_status_options,
+        index=(
+            0
+            if st.session_state["settings"].get("filter", "All") == "All"
+            else universal_status_options.index(
+                st.session_state["settings"].get("filter", "All")
+            )
+        ),
+        key="lecture_filter",
+    )
+    st.session_state["settings"]["filter"] = filter_option
+
+    if st.sidebar.button("💾 Save Settings", key="save_settings_button"):
+        save_settings(st.session_state["settings"])
+        st.sidebar.success("Settings saved!")
+    if st.sidebar.button("💾 Save All", key="save_all_button"):
+        try:
+            save_autosave()
+            st.sidebar.success("Progress saved to autosave.json")
+        except Exception as e:
+            st.sidebar.error(f"Autosave error: {e}")
+    return autosave_setting, preload_enabled, filter_option
 
 
-def get_plain_status(status):
-    """Convert an emoji-enhanced status to plain text using our mapping."""
-    return reverse_mapping.get(status, status)
+# --- Course Selection ---
+def render_course_selection(json_data):
+    """
+    Builds the course selection dropdown in the sidebar, with favorites pinned at the top.
+    Remembers and restores the last selected course across sessions.
+    Returns the selected course ID.
+    """
+    courses = []
+    for cid, course in json_data.items():
+        try:
+            title = course["curriculum_context"]["data"].get("course_title", "Untitled")
+        except Exception:
+            title = "Untitled"
+        fav = st.session_state["settings"]["favorites"].get(cid, False)
+        display = f"{'⭐ ' if fav else ''}{cid} - {title}"
+        courses.append((cid, display))
+
+    courses_sorted = sorted(
+        courses,
+        key=lambda x: (
+            0 if st.session_state["settings"]["favorites"].get(x[0], False) else 1
+        ),
+    )
+
+    options = [disp for _, disp in courses_sorted]
+    mapping = {disp: cid for cid, disp in courses_sorted}
+
+    default_course = st.session_state["settings"].get("selected_course", None)
+    default_index = 0
+    if default_course:
+        for disp, cid in mapping.items():
+            if cid == default_course and disp in options:
+                default_index = options.index(disp)
+                break
+
+    selected_option = st.sidebar.selectbox(
+        "🎯 Select Course", options, index=default_index, key="course_select"
+    )
+    current_course = mapping[selected_option]
+
+    # ✅ Save selected course only if changed
+    if st.session_state["settings"].get("selected_course") != current_course:
+        st.session_state["settings"]["selected_course"] = current_course
+        save_settings(st.session_state["settings"])
+
+    fav_toggle = st.sidebar.checkbox(
+        "⭐ Favorite",
+        value=st.session_state["settings"]["favorites"].get(current_course, False),
+        key="favorite_toggle",
+    )
+    st.session_state["settings"]["favorites"][current_course] = fav_toggle
+
+    return current_course
 
 
-def get_plain_statuses(statuses_dict):
-    """Convert all statuses to plain text for saving."""
-    return {k: get_plain_status(v) for k, v in statuses_dict.items()}
+# --- Course Details Rendering ---
+def render_course_details(
+    selected_course_id, json_data, statuses, status_options, filter_option
+):
+    """
+    Render the main content for the selected course, including course summary,
+    sections with individual status controls, master status updates, and section progress bars.
+    Lecture items are filtered based on the sidebar filter.
+    """
+    try:
+        course = json_data[selected_course_id]
+        curriculum = course["curriculum_context"]["data"]
+    except Exception:
+        st.error("Error: Invalid course data structure.")
+        return
+    instructor = course.get("instructor", "Unknown")
+    st.header(
+        f"🔖 [{curriculum.get('course_title', 'Untitled')}]({curriculum.get('course_url', '#')}) (👨‍🏫 {instructor})"
+    )
+    st.markdown(
+        f"**Content:** {len(curriculum.get('sections', []))} sections • {curriculum.get('num_of_published_lectures', 0)} lectures • {curriculum.get('estimated_content_length_text', 'Unknown')}"
+    )
+    for section in curriculum.get("sections", []):
+        sec_title = section.get("title", "Untitled Section")
+        length = section.get("content_length_text", "Unknown")
+        lect_count = section.get("lecture_count", 0)
+        done_count = sum(
+            1
+            for idx, item in enumerate(section.get("items", []))
+            if statuses.get(
+                f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{str(item.get('object_index', idx))}",
+                "❌ Not Done",
+            )
+            == "✅ Done"
+        )
+        section_header = (
+            f"📂 {sec_title} — ✅ {done_count}/{lect_count} lectures • ⏱ {length}"
+        )
+        with st.expander(section_header, expanded=False):
+            master_key = f"{selected_course_id}-{sec_title}-master"
+            col1, col2 = st.columns([8, 2])
+            with col1:
+                master_status = st.selectbox(
+                    "🎛️ Master Status", options=["---"] + status_options, key=master_key
+                )
+            with col2:
+                if st.button("✅ Apply", key=f"{master_key}-apply"):
+                    for idx, item in enumerate(section.get("items", [])):
+                        key = f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{str(item.get('object_index', idx))}"
+                        if master_status != "---":
+                            statuses[key] = master_status
+            st.markdown("---")
+            for idx, item in enumerate(section.get("items", [])):
+                key = f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{str(item.get('object_index', idx))}"
+                current_status = statuses.get(key, "❌ Not Done")
+                badge_color = status_colors.get(current_status, "#000")
+                lecture_badge = f"<span style='font-size:0.7em; color:white; background-color:{badge_color}; padding:1px 3px; border-radius:3px;'>{current_status}</span>"
+                col_a, col_b, col_c = st.columns([6, 3, 3])
+                with col_a:
+                    st.markdown(
+                        f"{lecture_badge}<br><strong>{item.get('title', 'Untitled Item')}</strong>",
+                        unsafe_allow_html=True,
+                    )
+                with col_b:
+                    st.markdown(
+                        f"⏱ {item.get('content_summary', 'Unknown')}",
+                        unsafe_allow_html=True,
+                    )
+                with col_c:
+                    unique_key = f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{str(item.get('object_index', idx))}-status"
+                    new_status = st.selectbox(
+                        "Status",
+                        status_options,
+                        index=(
+                            status_options.index(current_status)
+                            if current_status in status_options
+                            else 0
+                        ),
+                        key=unique_key,
+                    )
+                    statuses[key] = new_status
+                st.markdown("---")
 
 
-# ------------------------------------------------------------------------------
-# Analytics Dashboard
-# ------------------------------------------------------------------------------
-
-
+# --- Analytics Dashboard ---
 def show_progress_dashboard(course_id, statuses):
     """
     Display a progress analytics dashboard for a selected course.
@@ -264,17 +461,9 @@ def show_progress_dashboard(course_id, statuses):
     st.subheader("📊 Progress Analytics Dashboard")
     st.write(f"**Total Lectures:** {total}")
     st.write(
-        f"✅ **Done:** {done} &nbsp;&nbsp; ⏳ **In Progress:** {in_progress} &nbsp;&nbsp; ❌ **Not Done:** {not_done}"
+        f"✅ **Done:** {done}  ⏳ **In Progress:** {in_progress}  ❌ **Not Done:** {not_done}"
     )
-    progress_percent = (
-        (
-            (done + important)
-            / (done + important + in_progress + skip + come_back_later + not_done)
-            * 100
-        )
-        if total > 0
-        else 0
-    )
+    progress_percent = (done / (done + not_done) * 100) if total > 0 else 0
     st.progress(progress_percent / 100)
     st.write(f"**Completion:** {progress_percent:.1f}%")
     data = pd.DataFrame(
@@ -304,253 +493,22 @@ def show_progress_dashboard(course_id, statuses):
     st.bar_chart(data.set_index("Status"))
 
 
-# ------------------------------------------------------------------------------
-# Autosave Functions
-# ------------------------------------------------------------------------------
-
-
-def load_autosave():
-    """
-    Load autosaved data (if available) from autosave.json and convert loaded statuses
-    to UI-compatible versions.
-    """
-    if os.path.exists(AUTOSAVE_FILENAME):
-        try:
-            data = load_json(AUTOSAVE_FILENAME)
-            st.session_state["json_data"] = data.get("json_data")
-            loaded_statuses = data.get("statuses", {})
-            st.session_state["statuses"] = {
-                k: get_ui_status(v) for k, v in loaded_statuses.items()
-            }
-            st.sidebar.info("Loaded autosave.json")
-        except Exception as e:
-            st.sidebar.error(f"Autosave error: {e}")
-
-
-def save_autosave(json_data, statuses):
-    """
-    Save autosave data to autosave.json.
-    Only plain text statuses are saved.
-    """
-    plain_statuses = get_plain_statuses(statuses)
-    data = {"json_data": json_data, "statuses": plain_statuses}
-    save_json(AUTOSAVE_FILENAME, data)
-
-
-# ------------------------------------------------------------------------------
-# Main App Functions
-# ------------------------------------------------------------------------------
-
-
-def initialize_session_state():
-    """Initialize session state for JSON data, statuses, and settings."""
-    if "json_data" not in st.session_state:
-        st.session_state["json_data"] = None
-    if "statuses" not in st.session_state:
-        st.session_state["statuses"] = {}
-    initialize_settings()
-
-
-def handle_file_upload():
-    """Display a file uploader to load JSON data if none is available."""
-    if st.session_state["json_data"] is None:
-        uploaded_file = st.file_uploader("📂 Upload JSON", type=["json"])
-        if uploaded_file is not None:
-            try:
-                st.session_state["json_data"] = json.load(uploaded_file)
-                st.success("JSON loaded!")
-            except Exception as e:
-                st.error(f"Error reading JSON: {e}")
-
-
-def render_sidebar():
-    """Render sidebar options for autosave, preload, course selection, filters, and expand all."""
-    st.sidebar.header("⚙️ Options")
-    autosave_setting = st.sidebar.checkbox(
-        "💾 Autosave",
-        value=st.session_state["settings"].get("autosave_setting", False),
-        key="autosave_checkbox",
-    )
-    st.session_state["settings"]["autosave_setting"] = autosave_setting
-    preload_enabled = st.sidebar.checkbox(
-        "🚀 Preload JSON",
-        value=st.session_state["settings"].get("preload", True),
-        key="preload_checkbox",
-    )
-    universal_filter_options = ["All"] + universal_status_options
-    filter_option = st.sidebar.selectbox(
-        "Filter Lectures",
-        universal_filter_options,
-        index=universal_filter_options.index(
-            st.session_state["settings"].get("filter", "All")
-        ),
-        key="lecture_filter",
-    )
-    st.session_state["settings"]["filter"] = filter_option
-    expand_all = st.sidebar.checkbox(
-        "Expand All Sections",
-        value=st.session_state["settings"].get("expand_all", False),
-        key="expand_all_checkbox",
-    )
-    st.session_state["settings"]["expand_all"] = expand_all
-    if st.sidebar.button("💾 Save Settings", key="save_settings_button"):
-        save_settings(st.session_state["settings"])
-        st.sidebar.success("Settings saved!")
-    return autosave_setting, preload_enabled, filter_option
-
-
-def render_course_selection(json_data):
-    """
-    Build a course selection dropdown in the sidebar, sorting favorites to the top.
-    Returns the selected course ID.
-    """
-    courses = []
-    for cid, course in json_data.items():
-        curr = course.get("curriculum_context", {}).get("data", {})
-        title = curr.get("course_title", "Untitled")
-        fav = st.session_state["settings"]["favorites"].get(cid, False)
-        display = f"{'⭐ ' if fav else ''}{cid} - {title}"
-        courses.append((cid, display))
-    courses_sorted = sorted(
-        courses,
-        key=lambda x: (
-            0 if st.session_state["settings"]["favorites"].get(x[0], False) else 1
-        ),
-    )
-    options = [disp for cid, disp in courses_sorted]
-    mapping = {disp: cid for cid, disp in courses_sorted}
-    selected_course_option = st.sidebar.selectbox(
-        "🎯 Select Course", options=options, key="course_select"
-    )
-    current_course = mapping[selected_course_option]
-    fav_toggle = st.sidebar.checkbox(
-        "⭐ Favorite",
-        value=st.session_state["settings"]["favorites"].get(current_course, False),
-        key="favorite_toggle",
-    )
-    st.session_state["settings"]["favorites"][current_course] = fav_toggle
-    return mapping[selected_course_option]
-
-
-def render_course_details(
-    selected_course_id, json_data, statuses, status_options, filter_option
-):
-    """
-    Render the main content for the selected course, including course summary,
-    sections with individual status controls, master status updates, and section progress bars.
-    Lecture items are filtered based on the sidebar filter.
-    """
-    course = json_data[selected_course_id]
-    instructor = course.get("instructor", "Unknown")
-    curriculum = course.get("curriculum_context", {}).get("data", {})
-    course_title = curriculum.get("course_title", "Untitled")
-    course_url = curriculum.get("course_url", "#")
-    st.header(f"🔖 [{course_title}]({course_url}) (👨‍🏫 {instructor})")
-    total_secs = len(curriculum.get("sections", []))
-    total_lecs = sum(
-        sec.get("lecture_count", 0) for sec in curriculum.get("sections", [])
-    )
-    total_length = curriculum.get("estimated_content_length_text", "Unknown")
-    st.markdown(
-        f"**Content:** {total_secs} sections • {total_lecs} lectures • {total_length}"
-    )
-    expand_all = st.session_state["settings"].get("expand_all", False)
-    for sec in curriculum.get("sections", []):
-        sec_title = sec.get("title", "Untitled Section")
-        length = sec.get("content_length_text", "Unknown")
-        lect_count = sec.get("lecture_count", 0)
-        done_count = sum(
-            1
-            for item in sec.get("items", [])
-            if statuses.get(
-                f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{item.get('object_index', '0')}",
-                "❌ Not Done",
-            )
-            == "✅ Done"
-        )
-        section_header = (
-            f"📂 {sec_title}  —  ✅ {done_count}/{lect_count} lectures • ⏱ {length}"
-        )
-        visible_items = []
-        for item in sec.get("items", []):
-            key = f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{item.get('object_index', '0')}"
-            current_status = statuses.get(key, "❌ Not Done")
-            if filter_option == "All" or current_status == filter_option:
-                visible_items.append(item)
-        # If filter is "All", use the "expand all" setting; else, expand if there is at least one visible item.
-        if filter_option == "All":
-            default_expanded = expand_all
-        else:
-            default_expanded = len(visible_items) > 0
-        with st.expander(section_header, expanded=default_expanded):
-            master_key = f"master-{selected_course_id}-{sec_title}"
-            col_m1, col_m2 = st.columns([8, 2])
-            with col_m1:
-                master_status = st.selectbox(
-                    "🎛️ Master Status", options=["---"] + status_options, key=master_key
-                )
-            with col_m2:
-                if st.button("✅ Apply", key=master_key + "_apply"):
-                    for item in sec.get("items", []):
-                        if master_status == "---":
-                            continue
-                        key = f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{item.get('object_index', '0')}"
-                        statuses[key] = master_status
-            st.markdown("---")
-            visible_count = 0
-            for item in sec.get("items", []):
-                key = f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{item.get('object_index', '0')}"
-                current_status = statuses.get(key, "❌ Not Done")
-                if filter_option != "All" and current_status != filter_option:
-                    continue
-                visible_count += 1
-                badge_color = status_colors.get(current_status, "#000")
-                lecture_badge = f"<span style='font-size:0.7em; color:white; background-color:{badge_color}; padding:1px 3px; border-radius:3px;'>{current_status}</span>"
-                col1, col2, col3 = st.columns([6, 3, 3])
-                with col1:
-                    st.markdown(
-                        f"{lecture_badge}<br><strong>{item.get('title', 'Untitled Item')}</strong>",
-                        unsafe_allow_html=True,
-                    )
-                with col2:
-                    st.markdown(
-                        f"<p style='text-align:right'>{item.get('content_summary', 'Unknown')}</p>",
-                        unsafe_allow_html=True,
-                    )
-                with col3:
-                    new_stat = st.selectbox(
-                        "Status",
-                        options=status_options,
-                        index=(
-                            status_options.index(current_status)
-                            if current_status in status_options
-                            else 0
-                        ),
-                        key=key + "_sel",
-                    )
-                    statuses[key] = new_stat
-                st.markdown("---")
-            if visible_count == 0:
-                st.markdown("*No lectures match the selected filter.*")
-
-
+# --- Main Function ---
 def main():
-    """Main function to run the Course TODO List Manager app."""
+    """Main function to run the MyUdemyProgress app."""
     initialize_session_state()
     autosave_setting, preload_enabled, filter_option = render_sidebar()
 
-    # Preload autosave.json if it exists (contains json_data and statuses)
     if os.path.exists(AUTOSAVE_FILENAME):
         try:
             load_autosave()
             st.sidebar.success("Loaded autosave.json")
         except Exception as e:
             st.sidebar.error(f"Error loading autosave.json: {e}")
-    # Otherwise, if preload is enabled, load from input.json
     elif (
         preload_enabled
-        and os.path.exists(PRELOAD_FILENAME)
         and st.session_state["json_data"] is None
+        and os.path.exists(PRELOAD_FILENAME)
     ):
         try:
             st.session_state["json_data"] = load_json(PRELOAD_FILENAME)
@@ -561,24 +519,24 @@ def main():
     handle_file_upload()
 
     if st.session_state["json_data"] is not None:
-        # Merge statuses from the course JSON if available.
         for cid, course in st.session_state["json_data"].items():
             if "statuses" in course:
                 for key, value in course["statuses"].items():
                     st.session_state["statuses"][key] = get_ui_status(value)
         json_data = st.session_state["json_data"]
         statuses = st.session_state["statuses"]
-        status_options = universal_status_options
         selected_course_id = render_course_selection(json_data)
-        dashboard_placeholder = st.empty()
         render_course_details(
-            selected_course_id, json_data, statuses, status_options, filter_option
+            selected_course_id,
+            json_data,
+            statuses,
+            universal_status_options,
+            filter_option,
         )
-        with dashboard_placeholder.container():
-            show_progress_dashboard(selected_course_id, statuses)
+        show_progress_dashboard(selected_course_id, statuses)
         if autosave_setting:
             try:
-                save_autosave(json_data, statuses)
+                save_autosave()
                 st.sidebar.info("💾 Autosaved")
             except Exception as e:
                 st.sidebar.error(f"Autosave error: {e}")
@@ -613,19 +571,11 @@ def main():
             file_name="Individual_Markdowns.zip",
             mime="application/zip",
         )
-        if st.sidebar.button("💾 Save All", key="save_all_button"):
-            try:
-                save_autosave(json_data, statuses)
-                st.sidebar.success("Saved!")
-            except Exception as e:
-                st.sidebar.error(f"Save error: {e}")
     else:
         st.info("Please upload a JSON file or ensure autosave.json/input.json exists.")
 
 
-# ------------------------------------------------------------------------------
-# Custom CSS: Increase Scrollbar Width
-# ------------------------------------------------------------------------------
+# --- Custom CSS: Increase Scrollbar Width ---
 st.markdown(
     """
     <style>
