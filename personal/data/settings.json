@@ -6,6 +6,6 @@
     "filter": "All",
     "preload": true,
     "expand_all": false,
-    "autosave_setting": true,
+    "autosave_setting": false,
     "selected_course": "3929906"
 }
