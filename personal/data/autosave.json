@@ -13271,7 +13271,7 @@
         "4335460-Online Judges-SPOJ OJ-7": "Done",
         "4335460-Online Judges-Uva OJ-8": "Done",
         "4335460-Online Judges-CodeForces OJ-9": "Done",
-        "4335460-Recursion: Basics Review-Note-10": "Done",
+        "4335460-Recursion: Basics Review-Note-10": "Ignore",
         "4335460-Recursion: Basics Review-Recursive Functions 1-11": "Done",
         "4335460-Recursion: Basics Review-Recursive Functions 2-12": "Done",
         "4335460-Recursion: Basics Review-Recursive Functions Practice 1-13": "Done",
@@ -13288,12 +13288,12 @@
         "4335460-Recursion: Basics Review-Recursive Functions Homework 2 - Solutions p15-24": "Done",
         "4335460-Recursion: Basics Review-Recursive Functions Homework 2 - Solutions p16-25": "Done",
         "4335460-Recursion: Basics Review-Recursive Functions Homework 2 - Solutions p17-26": "Done",
-        "4335460-Complexity Analysis-Note-27": "Not Done",
-        "4335460-Complexity Analysis-Asymptotic Complexity 1 - Intro-28": "Not Done",
-        "4335460-Complexity Analysis-Asymptotic Complexity 2 - Time-29": "Not Done",
-        "4335460-Complexity Analysis-Asymptotic Complexity 3 - Some Math-30": "Not Done",
-        "4335460-Complexity Analysis-Asymptotic Complexity 4 - Space-31": "Not Done",
-        "4335460-Complexity Analysis-Quiz Complexity 1-2": "Not Done",
+        "4335460-Complexity Analysis-Note-27": "Ignore",
+        "4335460-Complexity Analysis-Asymptotic Complexity 1 - Intro-28": "Done",
+        "4335460-Complexity Analysis-Asymptotic Complexity 2 - Time-29": "Done",
+        "4335460-Complexity Analysis-Asymptotic Complexity 3 - Some Math-30": "Done",
+        "4335460-Complexity Analysis-Asymptotic Complexity 4 - Space-31": "Done",
+        "4335460-Complexity Analysis-Quiz Complexity 1-2": "Ignore",
         "4335460-Sorting: Insertion, Selection and Count-Insertion Sort 1-32": "Not Done",
         "4335460-Sorting: Insertion, Selection and Count-Insertion Sort 2-33": "Not Done",
         "4335460-Sorting: Insertion, Selection and Count-STL Sorting-34": "Not Done",
@@ -13411,6 +13411,6 @@
         "4335460-Topological Sorting-Topological Homework 3 - Solution p3-143": "Not Done",
         "4335460-Topological Sorting-DFS for Topological Sort-144": "Not Done",
         "4335460-Topological Sorting-Topological Sorting Thoughts-145": "Not Done",
-        "4335460-Thank You-Bonus-146": "Not Done"
+        "4335460-Thank You-Bonus-146": "Ignore"
     }
 }
