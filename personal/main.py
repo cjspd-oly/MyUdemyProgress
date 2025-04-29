@@ -384,11 +384,13 @@ def render_course_details(
         done_count = sum(
             1
             for idx, item in enumerate(section.get("items", []))
-            if statuses.get(
+            if item.get("item_type") == "lecture"
+            and statuses.get(
                 f"{selected_course_id}-{sec_title}-{item.get('title', 'Untitled')}-{str(item.get('object_index', idx))}",
                 "❌ Not Done",
             )
-            == "✅ Done"
+            not in ["❌ Not Done", "⏳ In Progress", "⏰ Come Back Later"]
+            # == "✅ Done" # This counts lectures that are only "Done"
         )
         section_header = (
             f"📂 {sec_title} — ✅ {done_count}/{lect_count} lectures • ⏱ {length}"
