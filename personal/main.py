@@ -460,12 +460,15 @@ def show_progress_dashboard(course_id, statuses):
     maybe = sum(1 for s in course_statuses.values() if s == "⏳ Maybe")
     skip = sum(1 for s in course_statuses.values() if s == "⏭ Skip")
     ignore = sum(1 for s in course_statuses.values() if s == "🚫 Ignore")
-    st.subheader("📊 Progress Analytics Dashboard")
-    st.write(f"**Total Lectures:** {total}")
-    st.write(
-        f"✅ **Done:** {done}  ⏳ **In Progress:** {in_progress}  ❌ **Not Done:** {not_done}"
+    accurate_total = (
+        done + in_progress + not_done + important + come_back_later + skip + maybe
     )
-    progress_percent = (done / (done + not_done) * 100) if total > 0 else 0
+    st.subheader("📊 Progress Analytics Dashboard")
+    st.write(f"**Total Lectures:** {accurate_total}")
+    st.write(
+        f"✅ **Done:** {done+important}  ⏳ **In Progress:** {in_progress}  ❌ **Not Done:** {accurate_total-done-important-in_progress}"
+    )
+    progress_percent = ((done + important) / (accurate_total) * 100) if total > 0 else 0
     st.progress(progress_percent / 100)
     st.write(f"**Completion:** {progress_percent:.1f}%")
     data = pd.DataFrame(
