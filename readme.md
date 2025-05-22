@@ -1,7 +1,7 @@
 # 📚 My Udemy Progress
 
 **My Udemy Progress** is a Streamlit-based web application that helps you track your Udemy course progress, manage lesson statuses, and export Markdown reports. The app provides an intuitive UI with autosave, file import, and export functionalities.  
-*Note: A detailed changelog will be provided in a separate `changelog.md` file in the future.*
+*Note: A detailed changelog is in a separate `changelog.md` file.*
 
 ![App Screenshot](#)  
 *(Add screenshot of the UI here)*
@@ -13,7 +13,7 @@
 - **Course-wise and Section-wise Tracking**  
   Monitor your overall progress and drill down into individual sections for detailed insights.
 - **Customizable Status Options**  
-  Easily update lesson statuses using a universal status list: ❌ Not Done, ⏳ In Progress, ✅ Done, ⭐ Important, ⏭ Skip, 🚫 Ignore.
+  Easily update lesson statuses using a status_info: ❌ Not Done, ⏳ In Progress, ✅ Done, ⭐ Important, ⏭ Skip, 🚫 Ignore.
 - **Import & Autosave Data**  
   Import your Udemy JSON data (with preload support via `input.json`) and autosave your progress in a separate `autosave.json` file.
 - **Export Markdown Reports**  
@@ -23,8 +23,6 @@
   - A ZIP archive containing all Markdown files
 - **Instant Progress Dashboard**  
   A top-positioned dashboard provides updated progress analytics as you update statuses.
-- **Expand/Collapse Sections**  
-  Use the sidebar toggle to expand or collapse all sections (when the filter is set to "All"). For other filters, sections expand automatically if they contain one or more matching lectures.
 - **Enhanced User Interface**  
   - Lesson status badges are displayed on a new, smaller line above the lesson title.
   - Improved scrollbar width for a better browsing experience.
@@ -76,18 +74,13 @@ streamlit run app.py
 - Use the **Master Status** control to update all lessons in a section at once.
 - The progress dashboard at the top updates instantly with every change.
 
-### 3️⃣ Expand/Collapse Sections
-
-- Use the **Expand All Sections** toggle in the sidebar to force all sections to be expanded when the filter is set to "All."
-- For any other filter, sections expand automatically only if they contain one or more lectures matching the filter.
-
-### 4️⃣ Save Your Progress
+### 3️⃣ Save Your Progress
 
 - Enable **Autosave** in the sidebar (this setting is saved in the settings file) to save changes automatically.
 - Alternatively, click **"Save All Changes"** (or the sidebar Save All button) to manually save progress.  
   *Note: When saving, lesson statuses are stored in plain text (without emojis) in the autosave file (`autosave.json`).*
 
-### 5️⃣ Export Reports
+### 4️⃣ Export Reports
 
 - **Download individual Markdown files** per course.
 - **Download a combined Markdown file** for all courses.
@@ -131,7 +124,7 @@ The `demo/` folder includes sample files and example data to showcase the app’
 Modify the `universal_status_options` list in `app.py`:
 
 ```python
-universal_status_options = ["❌ Not Done", "⏳ In Progress", "✅ Done", "⭐ Important", "⏭ Skip", "🚫 Ignore"]
+code snippet here
 ```
 
 ### 🔹 Preload Default JSON File
@@ -139,7 +132,9 @@ universal_status_options = ["❌ Not Done", "⏳ In Progress", "✅ Done", "⭐ 
 Set the preload file path in `app.py`:
 
 ```python
-PRELOAD_FILENAME = "data/input.json"
+PRELOAD_FILENAME = "data/input.json" # For Initial Run
+PRELOAD_FILENAME = "data/autosave.json" # After Initial Run
+
 ```
 
 ### 🔹 Modify Export File Names
