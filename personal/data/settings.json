@@ -9,6 +9,6 @@
     "filter": "All",
     "preload": true,
     "expand_all": false,
-    "autosave_setting": false,
+    "autosave_setting": true,
     "selected_course": "4335460"
 }
